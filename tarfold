@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check if a folder is provided as an argument
+if [ -z "$2" ]; then
+  echo "Usage: $0 <folder> <outputname>"
+  exit 1
+fi
+
+folder="$1"
+hash_file="$folder/all_hashes.txt"
+tarball_name="$folder/../$2.tar.zst"
+
+# Check if the folder exists
+if [ ! -d "$folder" ]; then
+  echo "Error: Folder '$folder' not found."
+  exit 1
+fi
+
+#cleaning up the hash file
+echo "" > "$hash_file"
+
+# Hash files recursively and print filename and SHA-256 hash
+find "$folder" -type f -exec shasum -a 256 {} \; | while read -r hash filename; do
+  if [ "$filename" == "$hash_file" ]; then
+    echo "$filename $hash"
+   else
+    echo "$filename SHA256: $hash" | tee -a "$hash_file"
+  fi
+done
+
+# Create a tarball with zstd compression
+tar -c --zstd -f "$tarball_name" "$folder"
