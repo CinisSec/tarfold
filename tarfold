@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -x
 # Set default compression algorithm
 compression_algorithm="zstd"
 
@@ -19,7 +18,7 @@ done
 
 # Check if the correct number of arguments is provided
 if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 [-a <compression_algorithm>] <folder> <outputname>"
+  echo "Usage: $0 [-a <compression_algorithm>] <folder> <outputname_without_extension>"
   exit 1
 fi
 
