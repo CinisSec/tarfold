@@ -20,7 +20,7 @@ fi
 echo "" > "$hash_file"
 
 # Hash files recursively and print filename and SHA-256 hash
-find "$folder" -type f -exec shasum -a 256 {} \; | while read -r hash filename; do
+find "$folder" -type f -exec sha256sum {} \; | while read -r hash filename; do
   if [ "$filename" == "$hash_file" ]; then
     echo "$filename $hash"
    else
