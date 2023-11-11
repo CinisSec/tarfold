@@ -39,9 +39,9 @@ fi
 # Hash files recursively and print filename and SHA-256 hash
 find "$folder" -type f -exec sha256sum {} \; | while read -r hash filename; do
   if [ "$filename" == "$hash_file" ]; then
-    echo "$filename $hash"
+    echo "$hash $filename"
   else
-    echo "$filename SHA256: $hash" | tee -a "$hash_file"
+    echo "$hash $filename" | tee -a "$hash_file"
   fi
 done
 
