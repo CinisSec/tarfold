@@ -1,14 +1,32 @@
 #!/bin/bash
 
-# Check if a folder is provided as an argument
-if [ -z "$2" ]; then
-  echo "Usage: $0 <folder> <outputname>"
+set -x
+# Set default compression algorithm
+compression_algorithm="zstd"
+
+# Parse command line options
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -a)
+      compression_algorithm="$2"
+      shift 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 [-a <compression_algorithm>] <folder> <outputname>"
   exit 1
 fi
 
 folder="$1"
+output_name="$2"
 hash_file="$folder/all_hashes.txt"
-tarball_name="$folder/../$2.tar.zst"
+tarball_name="$folder/../$output_name.tar.$compression_algorithm"
 
 # Check if the folder exists
 if [ ! -d "$folder" ]; then
@@ -16,17 +34,21 @@ if [ ! -d "$folder" ]; then
   exit 1
 fi
 
-#cleaning up the hash file
-echo "" > "$hash_file"
+# Clean up the hash file
+> "$hash_file"
 
 # Hash files recursively and print filename and SHA-256 hash
 find "$folder" -type f -exec sha256sum {} \; | while read -r hash filename; do
   if [ "$filename" == "$hash_file" ]; then
     echo "$filename $hash"
-   else
+  else
     echo "$filename SHA256: $hash" | tee -a "$hash_file"
   fi
 done
 
-# Create a tarball with zstd compression
-tar -c --zstd -f "$tarball_name" "$folder"
+# Create a tarball with the specified compression algorithm
+if tar --create --"$compression_algorithm" --file="$tarball_name" -C "$folder" .; then
+  echo "Hashing and tarballing completed successfully."
+else
+  echo "Error: Tar operation failed."
+fi
