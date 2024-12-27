@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 filename in current directory"
+  exit 1
+fi
+
+filename="$1"
+filenametar="${filename%.*}"
+#remove the two extensions of the filename
+filenamenoext="${filenametar%.*}"
+
+unzstd "$filename"
+mkdir "$filenamenoext"
+tar -xzvf "$filenamenoext.tar" -C "$filenamenoext/"
+
